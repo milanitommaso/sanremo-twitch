@@ -1,5 +1,7 @@
 from flask import Flask, render_template
 
+from chat_listener import start_threads, stop_threads
+
 app = Flask(__name__)
 app.config["DEBUG"] = True
 
@@ -16,11 +18,13 @@ def get_averages(day):
 
 @app.route("/api/start-listen/<day>/<singer_id>")
 def start_listen(day, singer_id):
+    start_threads(day, singer_id)
     return "started"
 
 
 @app.route("/api/stop-listen")
 def stop_listen():
+    stop_threads()
     return "stopped"
 
 
