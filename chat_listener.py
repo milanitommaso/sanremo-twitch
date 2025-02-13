@@ -5,6 +5,8 @@ import random
 import json
 
 threads = []
+channels = []
+
 lock = threading.Lock()
 
 def process_message(line: str, day, singer_id):
@@ -42,12 +44,19 @@ def process_message(line: str, day, singer_id):
             if singer_id not in grades[day]:
                 grades[day][singer_id] = {}
 
-            if username in grades[day][singer_id]:
-                # user has already voted
-                return
-            
-            # save the new grade
-            grades[day][singer_id][username] = grade
+            if username in channels:
+                if "streamers" not in grades[day][singer_id]:
+                    grades[day][singer_id]["streamers"] = {}
+
+                grades[day][singer_id]["streamers"][username] = grade
+
+            else:
+                if username in grades[day][singer_id]:
+                    # user has already voted
+                    return
+                
+                # save the new grade
+                grades[day][singer_id][username] = grade
 
             with open("grades.json", 'w') as f:
                 json.dump(grades, f, indent=4)
@@ -198,9 +207,11 @@ class ListenChatThread(threading.Thread):
 def start_threads(day, singer_id):
     # called after api request
 
-    global threads
+    global threads, channels
 
-    channels = ["enkk"]
+    with open("secrets.json", "r") as f:
+        secrets = json.load(f)
+        channels = secrets["channels"]
 
     threads = []
 

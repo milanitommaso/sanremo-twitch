@@ -15,9 +15,32 @@
                     .then(response => response.json())
                     .then(data => {
                         const tableBody = document.getElementById("leaderboard-body");
+
+                        let streamersVotes = {};
+                        let streamers_list = [];
                         
                         // calculate average votes
                         Object.entries(data).forEach(([singer, votes]) => {
+
+                            // save the votes of the streamers in a separate object
+                            Object.entries(votes).forEach(([streamer, vote]) => {
+                                if (streamer === "streamers") {
+                                    // iterate over the streamers
+                                    Object.entries(vote).forEach(([streamer, vote]) => {
+                                        if (!streamers_list.includes(streamer)) {
+                                            streamers_list.push(streamer);
+                                        }
+                                        if (!streamersVotes[singer]) {
+                                            streamersVotes[singer] = {};
+                                        }
+                                        streamersVotes[singer][streamer] = vote;
+                                    });
+                                }
+                            });
+
+                            // delete the streamers object from the votes object
+                            delete votes.streamers;
+
                             const totalVotes = Object.values(votes).reduce((acc, vote) => acc + vote, 0);
                             const average = totalVotes / Object.keys(votes).length;
                             data[singer] = {
@@ -25,6 +48,18 @@
                                 votes: Object.keys(votes).length
                             };
                         });
+
+                        // add the streamers to the table head
+                        const tableHead = document.getElementById("leaderboard-head");
+                        tableHead.innerHTML = `<tr>
+                            <th>Cantante</th>
+                            ${streamers_list.map(streamer => `<th>${streamer}</th>`).join("")}
+                            <th>Media Voti Chat</th>
+                            <th>Numero Voti</th>
+                            <th>Seleziona</th>
+                        </tr>`;
+
+
                         
                         // if there is a singer that is in the table but not in the data, add it and set the average to '-'
                         // iterate over the singers in the table
@@ -47,6 +82,9 @@
                             // show the singer in the table
                             tableBody.innerHTML += `<tr>
                                 <td>${singer}</td>
+                                
+                                ${streamers_list.map(streamer => `<td>${streamersVotes[singer] && streamersVotes[singer][streamer] ? streamersVotes[singer][streamer] : "-"}</td>`).join("")}
+
                                 <td>${stats.average}</td>
                                 <td>${stats.votes}</td>
                                 <td><input type="radio" name="singer" value="${singer}"></td>
@@ -157,10 +195,10 @@
     <button id="stop-btn" class="btn btn-danger">Ferma Votazioni</button>
 
     <table class="table table-bordered mt-3">
-        <thead>
+        <thead id="leaderboard-head">
             <tr>
                 <th>Cantante</th>
-                <th>Media Voti</th>
+                <th>Media Voti Chat</th>
                 <th>Numero Voti</th>
                 <th>Seleziona</th>
             </tr>
