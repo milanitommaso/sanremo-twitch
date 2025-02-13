@@ -18,6 +18,8 @@ def process_message(line: str, day, singer_id):
     for e in line_list:
         if "display-name=" in e and "reply" not in e:
             username = e.split("=")[1]
+            # make username lowercase
+            username = username.lower()
 
     if username is None:
         return
@@ -32,8 +34,13 @@ def process_message(line: str, day, singer_id):
         if '/10' in message:
             message = message.split('/10')[0]
 
-        if message.isdigit() and int(message) >= 0 and int(message) <= 10:
-            grade = int(message)
+        message = message.replace(",", ".")
+
+        # convert the message to a float
+        grade = float(message)
+
+        if grade < 0 or grade > 10:
+            return
 
         # the lock garantee that the file is not modified by multiple threads at the same time
         with lock:
@@ -209,6 +216,8 @@ def start_threads(day, singer_id):
 
     global threads, channels
 
+    stop_threads()
+
     with open("secrets.json", "r") as f:
         secrets = json.load(f)
         channels = secrets["channels"]
@@ -229,6 +238,7 @@ def stop_threads():
 
     for t in threads:
         t.set_stop()
+        t.join()
 
     threads = []
 
