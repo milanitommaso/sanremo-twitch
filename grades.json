@@ -1,26 +1,7 @@
 {
-    "tuesday": {
-        "fedez": {
-            "username1": 10,
-            "username2": 8,
-            "username3": 7
-        },
-        "jovanotti": {
-            "username1": 6,
-            "username2": 5,
-            "username3": 4
-        }
-    },
-    "wednesday": {
-        "fedez": {
-            "username1": 10,
-            "username2": 8,
-            "username3": 7
-        },
-        "jovanotti": {
-            "username1": 6,
-            "username2": 5,
-            "username3": 4
-        }
-    }
+    "tuesday": {},
+    "wednesday": {},
+    "thursday": {},
+    "friday": {},
+    "saturday": {}
 }
