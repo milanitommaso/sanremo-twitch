@@ -5,6 +5,7 @@ import random
 import json
 
 threads = []
+lock = threading.Lock()
 
 def process_message(line: str, day, singer_id):
     username, message = None, None
@@ -32,19 +33,24 @@ def process_message(line: str, day, singer_id):
         if message.isdigit() and int(message) >= 0 and int(message) <= 10:
             grade = int(message)
 
-        # open the file where the grades are stored and check if the user has already voted
-        with open("grades.json", 'r') as f:
-            grades = json.load(f)
+        # the lock garantee that the file is not modified by multiple threads at the same time
+        with lock:
+            # open the file where the grades are stored and check if the user has already voted
+            with open("grades.json", 'r') as f:
+                grades = json.load(f)
 
-        if username in grades[day][singer_id]:
-            # user has already voted
-            return
-        
-        # save the new grade
-        grades[day][singer_id][username] = grade
+            if singer_id not in grades[day]:
+                grades[day][singer_id] = {}
 
-        with open("grades.json", 'w') as f:
-            json.dump(grades, f, indent=4)
+            if username in grades[day][singer_id]:
+                # user has already voted
+                return
+            
+            # save the new grade
+            grades[day][singer_id][username] = grade
+
+            with open("grades.json", 'w') as f:
+                json.dump(grades, f, indent=4)
 
     except:
         message = None
@@ -194,7 +200,7 @@ def start_threads(day, singer_id):
 
     global threads
 
-    channels = ["channels"]
+    channels = ["enkk"]
 
     threads = []
 
@@ -202,7 +208,6 @@ def start_threads(day, singer_id):
         t = ListenChatThread(c, day, singer_id)
         threads.append(t)
         t.start()
-        print("ss")
         time.sleep(0.7)
 
 
