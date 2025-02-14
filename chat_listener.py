@@ -222,7 +222,7 @@ def start_threads(day, singer_id):
         secrets = json.load(f)
         channels = secrets["channels"]
 
-    threads = []
+    threads.clear()
 
     for c in channels:
         t = ListenChatThread(c, day, singer_id)
@@ -240,6 +240,6 @@ def stop_threads():
         t.set_stop()
         t.join()
 
-    threads = []
+    threads.clear()
 
     print("threads stopped")
