@@ -131,7 +131,6 @@
                 }
                 fetch(`/api/start-listen/${currentDay}/${selectedSinger}`, { method: "GET" })
                     .then(() => {
-                        alert("Votazioni avviate!");
                         // disable the start button and reset the text
                         document.getElementById("start-btn").disabled = true;
                         document.getElementById("start-btn").textContent = "Inizia Votazioni";
