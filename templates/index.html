@@ -9,6 +9,7 @@
         document.addEventListener("DOMContentLoaded", function () {
             let currentDay = "tuesday";
             let selectedSinger = "";
+            let voting = false;
 
             function fetchLeaderboard() {
                 fetch(`/api/get-votes/${currentDay}`)
@@ -59,8 +60,6 @@
                             <th>Seleziona</th>
                         </tr>`;
 
-
-                        
                         // if there is a singer that is in the table but not in the data, add it and set the average to '-'
                         // iterate over the singers in the table
                         tableBody.querySelectorAll("tr").forEach(row => {
@@ -80,16 +79,29 @@
                             return b[1].average - a[1].average;
                         }).forEach(([singer, stats]) => {
                             // show the singer in the table
-                            tableBody.innerHTML += `<tr>
+                            let isActive = voting && selectedSinger === singer;
+                            tableBody.innerHTML += `<tr class="${isActive ? 'table-success' : ''}">
                                 <td>${singer}</td>
-                                
-                                ${streamers_list.map(streamer => `<td>${streamersVotes[singer] && streamersVotes[singer][streamer] ? streamersVotes[singer][streamer] : "-"}</td>`).join("")}
-
+                                ${streamers_list.map(streamer => `<td>${streamersVotes[singer] && streamer in streamersVotes[singer] ? streamersVotes[singer][streamer] : '-'}</td>`).join("")}
                                 <td>${stats.average}</td>
                                 <td>${stats.votes}</td>
                                 <td><input type="radio" name="singer" value="${singer}"></td>
                             </tr>`;
                         });
+
+                        // if the voting is active, select the singer
+                        if (voting && selectedSinger) {
+                            document.querySelector(`input[value="${selectedSinger}"]`).checked = true;
+
+                            // disable the radio buttons
+                            document.querySelectorAll("input[type=radio]").forEach(radio => radio.disabled = true);
+                        } else if (selectedSinger) {
+                            // enable the radio buttons
+                            document.querySelectorAll("input[type=radio]").forEach(radio => radio.disabled = false);
+
+                            // select the singer
+                            document.querySelector(`input[value="${selectedSinger}"]`).checked = true;
+                        }
                     });
             }
 
@@ -135,6 +147,12 @@
                         document.getElementById("start-btn").disabled = true;
                         document.getElementById("start-btn").textContent = "Inizia Votazioni";
 
+                        // set voting to true
+                        voting = true;
+
+                        // disable the radio buttons
+                        document.querySelectorAll("input[type=radio]").forEach(radio => radio.disabled = true);
+
                         // show the current singer text
                         document.getElementById("current-singer").textContent = `Votazioni in corso per ${selectedSinger}`;
                     });
@@ -146,15 +164,27 @@
                         // enable the start button
                         document.getElementById("start-btn").disabled = false;
 
+                        // reset the name of the start button
+                        document.getElementById("start-btn").textContent = "Inizia Votazioni";
+
                         // remove the current singer text
                         document.getElementById("current-singer").textContent = "";
+                        
+                        // reset the radio buttons
+                        document.querySelectorAll("input[type=radio]").forEach(radio => radio.disabled = false);
+                        document.querySelectorAll("input[type=radio]").forEach(radio => radio.checked = false);
+                        
+                        // reset the selected singer
+                        selectedSinger = "";
 
+                        // set voting to false
+                        voting = false;
+                        
                         // show the text "votazioni concluse" for 2 seconds
                         document.getElementById("current-singer").textContent = "Votazioni Concluse";
                         setTimeout(() => {
                             document.getElementById("current-singer").textContent = "";
                         }, 2000);
-
                     });
             });
 
