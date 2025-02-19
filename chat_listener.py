@@ -28,6 +28,9 @@ def process_message(line: str, day, singer_id):
     try:
         message = "".join(line.split("PRIVMSG #")[1].split(" :")[1]).strip()
 
+        if "NaN" in message or "inf" in message or "INF" in message or "nan" in message or "Nan" in message:
+            return
+
         # check if the message represent a grade
         # possible grades: only a number from 0 to 10 or <grade>/10
 
