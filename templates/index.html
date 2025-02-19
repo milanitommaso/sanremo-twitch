@@ -53,17 +53,17 @@
                         // add the streamers to the table head
                         const tableHead = document.getElementById("leaderboard-head");
                         tableHead.innerHTML = `<tr>
+                            <th></th>
                             <th>Cantante</th>
                             ${streamers_list.map(streamer => `<th>${streamer}</th>`).join("")}
                             <th>Media Voti Chat</th>
                             <th>Numero Voti</th>
-                            <th>Seleziona</th>
                         </tr>`;
 
                         // if there is a singer that is in the table but not in the data, add it and set the average to '-'
                         // iterate over the singers in the table
                         tableBody.querySelectorAll("tr").forEach(row => {
-                            const singer = row.querySelector("td").textContent;
+                            const singer = row.querySelector("td:nth-child(2)").textContent;
                             if (!data[singer]) {
                                 data[singer] = { average: "-", votes: "-" };
                             }
@@ -81,11 +81,11 @@
                             // show the singer in the table
                             let isActive = voting && selectedSinger === singer;
                             tableBody.innerHTML += `<tr class="${isActive ? 'table-success' : ''}">
+                                <td><input type="radio" name="singer" value="${singer}"></td>
                                 <td>${singer}</td>
                                 ${streamers_list.map(streamer => `<td>${streamersVotes[singer] && streamer in streamersVotes[singer] ? streamersVotes[singer][streamer] : '-'}</td>`).join("")}
                                 <td>${stats.average}</td>
                                 <td>${stats.votes}</td>
-                                <td><input type="radio" name="singer" value="${singer}"></td>
                             </tr>`;
                         });
 
@@ -116,10 +116,10 @@
 
                         data.forEach(singer => {
                             tableBody.innerHTML += `<tr>
+                                <td><input type="radio" name="singer" value="${singer}"></td>
                                 <td>${singer}</td>
                                 <td>0</td>
                                 <td>0</td>
-                                <td><input type="radio" name="singer" value="${singer}"></td>
                             </tr>`;
                         });
 
@@ -226,10 +226,10 @@
     <table class="table table-bordered mt-3">
         <thead id="leaderboard-head">
             <tr>
+                <th></th>
                 <th>Cantante</th>
                 <th>Media Voti Chat</th>
                 <th>Numero Voti</th>
-                <th>Seleziona</th>
             </tr>
         </thead>
         <tbody id="leaderboard-body"></tbody>
